@@ -32,11 +32,11 @@ io.on("connection", (socket: any) => {
     }
   );
 
-  socket.on("isOpponentReady", (player) => {
+  socket.on("isOpponentReady", (player: any) => {
     io.to(player).emit("isOpponentReady");
   });
 
-  socket.on("endGame", (data) => {
+  socket.on("endGame", (data: any) => {
     const { player } = data;
     io.to(player).emit("endGame", data);
   });
@@ -46,7 +46,7 @@ io.on("connection", (socket: any) => {
     io.to(roomData.room).emit("roomData", roomData.data);
   });
 
-  socket.on("countdown", (room) => {
+  socket.on("countdown", (room: any) => {
     io.to(room).emit("countdown");
   });
 

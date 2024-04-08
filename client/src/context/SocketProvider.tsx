@@ -14,7 +14,15 @@ export const SocketContext = createContext<SocketContextProps | undefined>(
 );
 
 export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
-  const socket = io();
+  const URL =
+    import.meta.env.MODE === "production"
+      ? import.meta.env.VITE_REACT_APP_BACKEND_URL
+      : undefined;
+
+  const socket = io(URL, {
+    transports: ["websocket"],
+  });
+
   return (
     <SocketContext.Provider value={{ socket }}>
       {children}
