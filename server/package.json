@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon --exec ts-node src/index.ts",
-    "build": "echo 'No build step needed for Express server'"
+    "dev": "node dist/index.js",
+    "build": "tsc"
   },
   "keywords": [],
   "author": "",
