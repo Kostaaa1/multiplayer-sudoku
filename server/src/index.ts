@@ -12,7 +12,7 @@ app.use(cors());
 app.use(express.urlencoded({ extended: false }));
 
 const io = new Server(server);
-io.on("connection", (socket) => {
+io.on("connection", (socket: any) => {
   console.log("User joined: ", socket.id);
   socket.join(socket.id);
   socket.emit("clientId", { type: "client", room: socket.id });
