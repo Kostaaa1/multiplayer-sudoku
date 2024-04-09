@@ -5,11 +5,11 @@ export default defineConfig({
   server: {
     proxy: {
       "/api": {
-        target: "https://p2p-sudoku-server.onrender.com/",
+        target: "http://localhost:3000",
         changeOrigin: true,
       },
       "/socket.io": {
-        target: "https://p2p-sudoku-server.onrender.com/",
+        target: "http://localhost:3000",
         changeOrigin: true,
         secure: false,
         ws: true,

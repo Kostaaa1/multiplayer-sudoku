@@ -17,43 +17,39 @@ const io = new socket_io_1.Server(server);
 io.on("connection", (socket) => {
     console.log("User joined: ", socket.id);
     socket.join(socket.id);
-    socket.emit("clientId", { type: "client", room: socket.id });
-    socket.on("joinRoom", (roomData) => {
-        console.log("roomData dksoakdoksoakdok", roomData);
-        const { player, room, difficulty } = roomData;
-        // socket.leave(socket.id);
-        socket.join(room);
-        console.log(`User ${player} joined room: ${room}. Current socketId: ${socket.id}`);
-        if (player) {
-            io.to(player).emit("clientId", { type: "room", room, player: socket.id, difficulty });
-        }
-        else {
-            io.to(socket.id).emit("onJoin", roomData);
-        }
+    socket.emit("clientId", socket.id);
+    socket.on("joinRoom", (roomId) => {
+        socket.join(roomId);
+        console.log(`Socket ${socket.id} joined room: ${roomId}`);
     });
-    socket.on("isOpponentReady", (player) => {
-        io.to(player).emit("isOpponentReady");
+    socket.on("notifySocket", (data) => {
+        io.to(data.player2).emit("notify", data);
+    });
+    socket.on("roomMessage", (data) => {
+        io.to(data.roomId).emit("message", data);
     });
     socket.on("endGame", (data) => {
         const { player } = data;
         io.to(player).emit("endGame", data);
     });
-    socket.on("roomData", (roomData) => {
-        console.log("roomData called", roomData);
-        io.to(roomData.room).emit("roomData", roomData.data);
+    socket.on("isOpponentReady", (player) => {
+        io.to(player).emit("isOpponentReady");
     });
     socket.on("countdown", (room) => {
         io.to(room).emit("countdown");
     });
     socket.on("disconnect", () => {
-        console.log(`User disconnected with custom ID: ${socket.id}`);
+        // NEED TO IMPROLVE THIS SUCKS
+        const rooms = io.sockets.adapter.rooms;
+        const room = Array.from(rooms.keys())
+            .map((x) => x.split(socket.id))
+            .filter((x) => x.length > 1);
+        if (room) {
+            const s = room.find((x) => x.length > 0);
+            if (s)
+                io.to(s).emit("userDisconnected", `Player ${socket.id} disconnected from the room.`);
+        }
     });
-});
-app.get("/", (_, res) => {
-    res.send("Hello from server");
-});
-app.get("/test", (_, res) => {
-    res.send("TEST");
 });
 server.listen(3000, () => {
     console.log(`Server is running on ${3000}`);

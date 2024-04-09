@@ -15,25 +15,19 @@ const io = new Server(server);
 io.on("connection", (socket: any) => {
   console.log("User joined: ", socket.id);
   socket.join(socket.id);
-  socket.emit("clientId", { type: "client", room: socket.id });
-  socket.on(
-    "joinRoom",
-    (roomData: { room: string; player: string | null; difficulty: string }) => {
-      console.log("roomData dksoakdoksoakdok", roomData);
-      const { player, room, difficulty } = roomData;
-      // socket.leave(socket.id);
-      socket.join(room);
-      console.log(`User ${player} joined room: ${room}. Current socketId: ${socket.id}`);
-      if (player) {
-        io.to(player).emit("clientId", { type: "room", room, player: socket.id, difficulty });
-      } else {
-        io.to(socket.id).emit("onJoin", roomData);
-      }
-    }
-  );
+  socket.emit("clientId", socket.id);
 
-  socket.on("isOpponentReady", (player: any) => {
-    io.to(player).emit("isOpponentReady");
+  socket.on("joinRoom", (roomId: string) => {
+    socket.join(roomId);
+    console.log(`Socket ${socket.id} joined room: ${roomId}`);
+  });
+
+  socket.on("notifySocket", (data: { player2: string }) => {
+    io.to(data.player2).emit("notify", data);
+  });
+
+  socket.on("roomMessage", (data: { roomId: string }) => {
+    io.to(data.roomId).emit("message", data);
   });
 
   socket.on("endGame", (data: any) => {
@@ -41,9 +35,8 @@ io.on("connection", (socket: any) => {
     io.to(player).emit("endGame", data);
   });
 
-  socket.on("roomData", (roomData: { room: string; data: any }) => {
-    console.log("roomData called", roomData);
-    io.to(roomData.room).emit("roomData", roomData.data);
+  socket.on("isOpponentReady", (player: any) => {
+    io.to(player).emit("isOpponentReady");
   });
 
   socket.on("countdown", (room: any) => {
@@ -51,16 +44,17 @@ io.on("connection", (socket: any) => {
   });
 
   socket.on("disconnect", () => {
-    console.log(`User disconnected with custom ID: ${socket.id}`);
+    // NEED TO IMPROLVE THIS SUCKS
+    const rooms = io.sockets.adapter.rooms;
+    const room = Array.from(rooms.keys())
+      .map((x) => x.split(socket.id))
+      .filter((x) => x.length > 1);
+
+    if (room) {
+      const s = room.find((x) => x.length > 0);
+      if (s) io.to(s).emit("userDisconnected", `Player ${socket.id} disconnected from the room.`);
+    }
   });
-});
-
-app.get("/", (_, res) => {
-  res.send("Hello from server");
-});
-
-app.get("/test", (_, res) => {
-  res.send("TEST");
 });
 
 server.listen(3000, () => {

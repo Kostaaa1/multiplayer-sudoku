@@ -2,7 +2,7 @@ import { Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import Sudoku from "./pages/Sudoku";
 import Modes from "./pages/Modes";
 import SocketConnection from "./pages/SocketConnection";
-import { Toaster } from "react-hot-toast";
+import toast, { Toaster } from "react-hot-toast";
 import { useCallback, useEffect } from "react";
 import useCountdownStore from "./store/countdownStore";
 import useGameStateStore from "./store/gameStateStore";
@@ -22,20 +22,23 @@ import {
   useSingleCellActions,
 } from "./store/cellStore";
 import useMistakesStore from "./store/mistakesStore";
+import useModalStore from "./store/modalStore";
+import ConfirmGameModal from "./components/ConfirmGameModal";
 
 function App() {
   const socket = useSocket();
   const navigate = useNavigate();
-  const location = useLocation();
   const { booRef, hornRef } = useEndGameConditions();
   const { decrementTime } = useCountdownStore((state) => state.actions);
   const { setSudoku } = useSudokuStore((state) => state.actions);
+  const isConfirmModalOpen = useModalStore((state) => state.isConfirmModalOpen);
   const { setIsWinner, setDifficulty } = useGameStateStore(
     (state) => state.actions,
   );
   const { setIsCountdownActive, setTime, updateCountdown } = useCountdownStore(
     (state) => state.actions,
   );
+  const player1 = useSocketStore((state) => state.player1);
   const { setIsOpponentReady, setPlayer1, setPlayer2, setRoomId } =
     useSocketStore((state) => state.actions);
   const { callSuccessToast, callErrorToast } = useToastStore(
@@ -48,6 +51,7 @@ function App() {
   const { setInsertedCells, resetInsertedCells } = useInsertedCellsActions();
   const { setFocusedCell } = useSingleCellActions();
   const { setIsToastRan } = useToastStore((state) => state.actions);
+  const { triggerConfirmModalOpen } = useModalStore((state) => state.actions);
 
   const setAll = (mainGame: string) => {
     const parsedData: TUnifiedGame = JSON.parse(mainGame);
@@ -97,42 +101,61 @@ function App() {
     setAll(JSON.stringify({ ...emptyGame, sudoku: newGame }));
   };
 
-  // socket test:
+  useEffect(() => {
+    if (!socket || !player1) return;
+    socket.on(
+      "message",
+      (data: {
+        player1: string;
+        player2: string;
+        board: string;
+        roomId: string;
+        difficulty: any;
+      }) => {
+        const { board, difficulty } = data;
+
+        setPlayer2(player1 === data.player1 ? data.player2 : data.player1);
+        resetGameState(difficulty);
+        setSudoku(JSON.parse(board));
+        setDifficulty(difficulty);
+        setTime(difficulty);
+
+        navigate("/sudoku");
+      },
+    );
+
+    return () => {
+      socket.disconnect();
+    };
+  }, [socket, player1]);
+
   useEffect(() => {
     if (!socket) return;
+    socket.on("clientId", (id) => setPlayer1(id));
     socket.on("connect", () => {
       console.log("Connected to socket");
     });
 
-    socket.on("clientId", (clientData) => {
-      const { room, type, difficulty } = clientData;
-      switch (type) {
-        case "client":
-          setPlayer1(room);
-          break;
-        case "room":
-          setRoomId(room);
-          setPlayer2(clientData.player);
-          socket?.emit("joinRoom", { room, player: null, difficulty });
-          break;
-      }
-    });
+    socket.on(
+      "notify",
+      (data: {
+        player1: string;
+        player2: string;
+        roomId: string;
+        difficulty: any;
+      }) => {
+        const { difficulty, player1, roomId } = data;
+        setPlayer2(player1);
+        setRoomId(roomId);
+        setDifficulty(difficulty);
+        triggerConfirmModalOpen();
+      },
+    );
 
-    socket.on("onJoin", (roomData) => {
-      const { room, difficulty } = roomData;
-      const board = generateSudokuBoard(difficulty);
-      const newData = { board, difficulty };
-      socket.emit("roomData", { room, data: newData });
-    });
-
-    socket.on("countdown", () => {
-      decrementTime();
-    });
-
+    socket.on("countdown", decrementTime);
     socket.on(
       "endGame",
       (data: { player: string; message: string; isWinner: boolean }) => {
-        console.log("endGame", data);
         const { isWinner, message } = data;
         setIsWinner(isWinner);
         setIsCountdownActive(false);
@@ -142,25 +165,15 @@ function App() {
       },
     );
 
+    socket.on("userDisconnected", (msg: string) => {
+      setRoomId(null);
+      toast.error(`⚠️⚠️⚠️ ${msg} ⚠️⚠️⚠️`);
+    });
+
     socket.on("isOpponentReady", () => {
-      console.log("Opponent is ready");
       setIsOpponentReady(true);
     });
 
-    socket.on(
-      "roomData",
-      (roomData: { board: string[][]; difficulty: DifficultySet["data"] }) => {
-        const { board, difficulty } = roomData;
-        resetGameState(difficulty);
-        setSudoku(board);
-        setDifficulty(difficulty);
-        setTime(difficulty);
-
-        if (location.pathname !== "/sudoku") {
-          navigate("/sudoku");
-        }
-      },
-    );
     return () => {
       socket.disconnect();
     };
@@ -209,6 +222,7 @@ function App() {
           },
         }}
       />
+      {isConfirmModalOpen && <ConfirmGameModal />}
     </>
   );
 }

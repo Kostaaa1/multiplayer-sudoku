@@ -2,17 +2,19 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { DifficultySet } from "../types/types";
 import { IconCheck } from "@tabler/icons-react";
-import usePeerStore from "../store/socketStore";
+import useSocketStore from "../store/socketStore";
 import useGameStateStore from "../store/gameStateStore";
 import { useSocket } from "../context/SocketProvider";
 import { cn } from "../utils/utils";
+import { generateSudokuBoard } from "../utils/generateSudoku";
 
 const SocketConnection = () => {
   const inputRef = useRef<HTMLInputElement>(null);
   const [input, setInput] = useState<string>("");
   const navigate = useNavigate();
-  const player1 = usePeerStore((state) => state.player1);
-  const { setPlayer2, setRoomId } = usePeerStore((state) => state.actions);
+  const player1 = useSocketStore((state) => state.player1);
+  const roomId = useSocketStore((state) => state.roomId);
+  const { setPlayer2, setRoomId } = useSocketStore((state) => state.actions);
   const [isCopyClicked, setIsCopyClicked] = useState<boolean>(false);
   const [page, setPage] = useState<number>(0);
   const PAGE_LIMIT = 2;
@@ -33,10 +35,15 @@ const SocketConnection = () => {
 
   const handleSocketConnection = (p2Id: string) => {
     const newRoomId = [player1 + p2Id].sort().join("");
-    console.log("called handleSocketConnection", newRoomId);
-    setPlayer2(p2Id);
     setRoomId(newRoomId);
-    socket?.emit("joinRoom", { room: newRoomId, player: p2Id, difficulty });
+
+    socket?.emit("joinRoom", newRoomId);
+    socket?.emit("notifySocket", {
+      player1,
+      player2: p2Id,
+      roomId: newRoomId,
+      difficulty,
+    });
   };
 
   const copyPeerId = () => {

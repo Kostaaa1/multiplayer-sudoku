@@ -48,7 +48,7 @@ const Countdown: FC<CountdownProps> = ({ startNewGame }) => {
   const [countdown, setCountdown] = useState("");
 
   useEffect(() => {
-    // Saving current game cache before the window unload,only if cells are added or mistakes are not
+    // Saving current game cache before the window unload, only if cells are added or mistakes
     if (roomId) return;
 
     const func = () => {

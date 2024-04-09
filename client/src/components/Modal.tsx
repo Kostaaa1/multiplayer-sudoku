@@ -7,6 +7,7 @@ import useMistakesStore from "../store/mistakesStore";
 import { useSocket } from "../context/SocketProvider";
 import { DifficultySet } from "../types/types";
 import { cn } from "../utils/utils";
+import { generateSudokuBoard } from "../utils/generateSudoku";
 
 interface ModalProps {
   startNewGame: (difficulty: DifficultySet["data"]) => void;
@@ -14,6 +15,7 @@ interface ModalProps {
 
 const Modal: FC<ModalProps> = ({ startNewGame }) => {
   const roomId = useSocketStore((state) => state.roomId);
+  const player1 = useSocketStore((state) => state.player1);
   const player2 = useSocketStore((state) => state.player2);
   const isOpponentReady = useSocketStore((state) => state.isOpponentReady);
   const difficulty = useGameStateStore((state) => state.difficulty);
@@ -27,7 +29,13 @@ const Modal: FC<ModalProps> = ({ startNewGame }) => {
       console.log(
         "Opponent is ready should create new game and send it to room",
       );
-      socket?.emit("joinRoom", { room: roomId, player: null, difficulty });
+      socket?.emit("roomMessage", {
+        roomId,
+        player1,
+        player2,
+        difficulty,
+        board: JSON.stringify(generateSudokuBoard(difficulty)),
+      });
       return;
     }
 

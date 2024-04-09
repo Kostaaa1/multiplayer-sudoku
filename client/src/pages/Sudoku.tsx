@@ -25,7 +25,6 @@ const Sudoku: FC<SudokuProps> = ({ setAll, startNewGame }) => {
   );
   useKeyboardArrows(inputRefs);
 
-  // Main Game Setter, whenever difficulty changes new game gets created ( only if there is nothing in storage, the storage gets saved before unloading)j:
   useEffect(() => {
     if (!roomId) {
       const cachedGameData = localStorage.getItem("main_game");
