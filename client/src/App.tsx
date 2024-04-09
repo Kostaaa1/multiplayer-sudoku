@@ -1,4 +1,4 @@
-import { Route, Routes, useLocation, useNavigate } from "react-router-dom";
+import { Route, Routes, useNavigate } from "react-router-dom";
 import Sudoku from "./pages/Sudoku";
 import Modes from "./pages/Modes";
 import SocketConnection from "./pages/SocketConnection";
