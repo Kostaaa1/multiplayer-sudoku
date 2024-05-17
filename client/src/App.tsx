@@ -28,7 +28,7 @@ import ConfirmGameModal from "./components/ConfirmGameModal";
 function App() {
   const socket = useSocket();
   const navigate = useNavigate();
-  const { booRef, hornRef } = useEndGameConditions();
+  const { audioRef } = useEndGameConditions();
   const { decrementTime } = useCountdownStore((state) => state.actions);
   const { setSudoku } = useSudokuStore((state) => state.actions);
   const isConfirmModalOpen = useModalStore((state) => state.isConfirmModalOpen);
@@ -41,16 +41,16 @@ function App() {
   const player1 = useSocketStore((state) => state.player1);
   const { setIsOpponentReady, setPlayer1, setPlayer2, setRoomId } =
     useSocketStore((state) => state.actions);
-  const { callSuccessToast, callErrorToast } = useToastStore(
-    (state) => state.actions,
-  );
+  // const { callSuccessToast, callErrorToast } = useToastStore(
+  //   (state) => state.actions,
+  // );
   const { setInvalidCells, resetInvalidCells } = useInvalidCellsActions();
   const { setMistakes, resetMistakes } = useMistakesStore(
     (state) => state.actions,
   );
   const { setInsertedCells, resetInsertedCells } = useInsertedCellsActions();
   const { setFocusedCell } = useSingleCellActions();
-  const { setIsToastRan } = useToastStore((state) => state.actions);
+  // const { setIsToastRan } = useToastStore((state) => state.actions);
   const { triggerConfirmModalOpen } = useModalStore((state) => state.actions);
 
   const setAll = (mainGame: string) => {
@@ -69,7 +69,7 @@ function App() {
 
   const resetGameState = (difficulty: DifficultySet["data"]) => {
     localStorage.removeItem("main_game");
-    setIsToastRan(false);
+    // setIsToastRan(false);
     setIsCountdownActive(true);
     setIsOpponentReady(false);
     resetMistakes();
@@ -158,10 +158,10 @@ function App() {
       (data: { player: string; message: string; isWinner: boolean }) => {
         const { isWinner, message } = data;
         setIsWinner(isWinner);
-        setIsCountdownActive(false);
-        isWinner
-          ? callSuccessToast(isWinner, message)
-          : callErrorToast(isWinner, message);
+        // setIsCountdownActive(false);
+        // isWinner
+        //   ? callSuccessToast(isWinner, message)
+        //   : callErrorToast(isWinner, message);
       },
     );
 
@@ -191,12 +191,10 @@ function App() {
           />
         </Routes>
       </div>
-      <audio ref={booRef}>
-        <source src={booPath} type="audio/mp3" />
-      </audio>
-      <audio ref={hornRef}>
-        <source src={hornPath} type="audio/mp3" />
-      </audio>
+      {/* <audio ref={audioRef}>
+        <source type="audio/mp3" />
+      </audio> */}
+      <audio ref={audioRef} />
       <Toaster
         position="top-center"
         reverseOrder={false}

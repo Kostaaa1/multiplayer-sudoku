@@ -34,7 +34,6 @@ const SocketConnection = () => {
   const handleSocketConnection = (p2Id: string) => {
     const newRoomId = [player1 + p2Id].sort().join("");
     setRoomId(newRoomId);
-
     socket?.emit("joinRoom", newRoomId);
     socket?.emit("notifySocket", {
       player1,

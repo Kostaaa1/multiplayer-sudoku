@@ -1,5 +1,3 @@
-import { FC } from "react";
-import Confetti from "react-confetti";
 import useSocketStore from "../store/socketStore";
 import useGameStateStore from "../store/gameStateStore";
 import { useSocket } from "../context/SocketProvider";
@@ -7,10 +5,7 @@ import { cn } from "../utils/utils";
 import useModalStore from "../store/modalStore";
 import { generateSudokuBoard } from "../utils/generateSudoku";
 
-interface ModalProps {}
-
-const ConfirmGameModal: FC<ModalProps> = () => {
-  const isWinner = useGameStateStore((state) => state.isWinner);
+const ConfirmGameModal = () => {
   const roomId = useSocketStore((state) => state.roomId);
   const socket = useSocket();
   const player1 = useSocketStore((state) => state.player1);
@@ -64,7 +59,6 @@ const ConfirmGameModal: FC<ModalProps> = () => {
           </button>
         </div>
       </div>
-      {isWinner && <Confetti />}
     </div>
   );
 };

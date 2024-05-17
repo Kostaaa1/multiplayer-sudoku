@@ -7,10 +7,11 @@ import useSudokuStore from "../store/sudokuStore";
 import useGameStateStore from "../store/gameStateStore";
 import { useInvalidCells } from "../store/cellStore";
 import { useSocket } from "../context/SocketProvider";
+import booPath from "../assets/boo.mp3";
+import hornPath from "../assets/horn.mp3";
 
 const useEndGameConditions = () => {
-  const booRef = useRef<HTMLAudioElement>(null);
-  const hornRef = useRef<HTMLAudioElement>(null);
+  const audioRef = useRef<HTMLAudioElement>(null);
 
   const player2 = useSocketStore((state) => state.player2);
   const mistakes = useMistakesStore((state) => state.mistakes);
@@ -48,11 +49,13 @@ const useEndGameConditions = () => {
   }, [mistakes]);
 
   useEffect(() => {
-    if (isWinner === null || isToastRan) return;
+    if (isWinner === null || isToastRan || !audioRef.current) return;
     setIsCountdownActive(false);
-    if (booRef.current && mistakes < 5 && isWinner === false) {
-      booRef.current.volume = 0.1;
-      booRef.current.play();
+    if (audioRef.current && mistakes < 5 && isWinner === false) {
+      audioRef.current.volume = 0.1;
+      audioRef.current.src = booPath;
+      audioRef.current.play();
+
       callErrorToast(isWinner, "Times up, you lost! Try Again.");
       socket?.emit("endGame", {
         player: player2,
@@ -61,9 +64,11 @@ const useEndGameConditions = () => {
       });
     }
 
-    if (booRef.current && mistakes === 5 && isWinner === false) {
-      booRef.current.volume = 0.1;
-      booRef.current.play();
+    if (audioRef.current && mistakes === 5 && isWinner === false) {
+      audioRef.current.volume = 0.1;
+      audioRef.current.src = booPath;
+      audioRef.current.play();
+
       callErrorToast(isWinner, "You have made 5 mistakes, you lost! Try Again");
       socket?.emit("endGame", {
         player: player2,
@@ -72,9 +77,11 @@ const useEndGameConditions = () => {
       });
     }
 
-    if (hornRef.current && isWinner) {
-      hornRef.current.volume = 0.1;
-      hornRef.current.play();
+    if (audioRef.current && isWinner) {
+      audioRef.current.volume = 0.1;
+      audioRef.current.src = hornPath;
+      audioRef.current.play();
+
       callSuccessToast(isWinner, "You Won!!!");
       socket?.emit("endGame", {
         player: player2,
@@ -82,9 +89,9 @@ const useEndGameConditions = () => {
         message: "You lost. The opponent solved before you!",
       });
     }
-  }, [isWinner, isToastRan, isCountdownActive]);
+  }, [isWinner, isToastRan, isCountdownActive, mistakes]);
 
-  return { booRef, hornRef, isToastRan };
+  return { audioRef, isToastRan };
 };
 
 export default useEndGameConditions;
