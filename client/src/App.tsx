@@ -156,7 +156,7 @@ function App() {
     socket.on(
       "endGame",
       (data: { player: string; message: string; isWinner: boolean }) => {
-        const { isWinner, message } = data;
+        const { isWinner  } = data;
         setIsWinner(isWinner);
         // setIsCountdownActive(false);
         // isWinner
@@ -181,7 +181,7 @@ function App() {
 
   return (
     <>
-      <div className="flex h-full w-screen items-center justify-center">
+      <div className="flex h-full w-[100svh] items-center justify-center">
         <Routes location={location} key={location.pathname}>
           <Route path="/" element={<Modes />} />
           <Route path="/sudoku/peer-connect" element={<SocketConnection />} />
