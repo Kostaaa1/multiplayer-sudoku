@@ -14,7 +14,10 @@ import {
   useInvalidCellsActions,
   useSingleCellActions,
 } from "../store/cellStore";
+import booPath from "../assets/boo.mp3";
 import { cn, formatCountdown } from "../utils/utils";
+import useEndGameConditions from "../hooks/useEndGameConditions";
+import useToastStore from "../store/toastStore";
 
 type CountdownProps = {
   startNewGame: (diff: DifficultySet["data"], sudoku?: string[][]) => void;
@@ -48,9 +51,7 @@ const Countdown: FC<CountdownProps> = ({ startNewGame }) => {
   const [countdown, setCountdown] = useState("");
 
   useEffect(() => {
-    // Saving current game cache before the window unload, only if cells are added or mistakes
     if (roomId) return;
-
     const func = () => {
       if (mistakes > 0 || invalidCells.length > 0 || insertedCells.length > 0) {
         const dataCollectior: TUnifiedGame = {
@@ -122,10 +123,9 @@ const Countdown: FC<CountdownProps> = ({ startNewGame }) => {
 
   useEffect(() => {
     if (time === 0) {
-      setIsWinner(false);
       setIsCountdownActive(false);
+      setIsWinner(false);
     }
-
     const formattedTime = formatCountdown(time);
     setCountdown(formattedTime);
   }, [time]);

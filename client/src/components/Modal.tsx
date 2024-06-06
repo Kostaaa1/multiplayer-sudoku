@@ -49,7 +49,7 @@ const Modal: FC<ModalProps> = ({ startNewGame }) => {
 
   return (
     <div className="absolute left-0 top-0 z-50 flex h-full w-full items-center justify-center bg-black bg-opacity-70 text-black">
-      <div className="flex h-max w-[440px] flex-col items-center justify-between rounded-md bg-white p-2">
+      <div className="flex h-max w-[440px] max-w-[90vw] flex-col items-center justify-between rounded-md bg-white p-2">
         <div className="pb-4">
           {isWinner === false && (
             <div>
@@ -64,7 +64,7 @@ const Modal: FC<ModalProps> = ({ startNewGame }) => {
           {isWinner === true && (
             <div className="flex h-full flex-col items-center">
               <h4 className="pb-1 text-2xl font-bold">
-                🎉🎉🎉 Congratulations! 🎉🎉🎉
+                🎉 Congratulations! 🎉
               </h4>
               <p className="font-semibold">You have won the game!</p>
             </div>

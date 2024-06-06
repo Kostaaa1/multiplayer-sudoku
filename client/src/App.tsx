@@ -181,7 +181,7 @@ function App() {
 
   return (
     <>
-      <div className="flex h-full w-[100svh] items-center justify-center">
+      <div className="flex h-[100svh] w-screen items-center justify-center">
         <Routes location={location} key={location.pathname}>
           <Route path="/" element={<Modes />} />
           <Route path="/sudoku/peer-connect" element={<SocketConnection />} />
@@ -191,9 +191,6 @@ function App() {
           />
         </Routes>
       </div>
-      {/* <audio ref={audioRef}>
-        <source type="audio/mp3" />
-      </audio> */}
       <audio ref={audioRef} />
       <Toaster
         position="top-center"

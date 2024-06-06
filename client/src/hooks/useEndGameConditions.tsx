@@ -20,12 +20,10 @@ const useEndGameConditions = () => {
     (state) => state.isCountdownActive,
   );
   const { setIsCountdownActive } = useCountdownStore((state) => state.actions);
-
   const isToastRan = useToastStore((state) => state.isToastRan);
   const { callSuccessToast, callErrorToast } = useToastStore(
     (state) => state.actions,
   );
-
   const invalidCells = useInvalidCells();
   const sudoku = useSudokuStore((state) => state.sudoku);
   const isWinner = useGameStateStore((state) => state.isWinner);
@@ -49,27 +47,29 @@ const useEndGameConditions = () => {
   }, [mistakes]);
 
   useEffect(() => {
-    if (isWinner === null || isToastRan || !audioRef.current) return;
-    setIsCountdownActive(false);
-    if (audioRef.current && mistakes < 5 && isWinner === false) {
+    if (audioRef.current && !isCountdownActive) {
       audioRef.current.volume = 0.1;
       audioRef.current.src = booPath;
       audioRef.current.play();
-
-      callErrorToast(isWinner, "Times up, you lost! Try Again.");
-      socket?.emit("endGame", {
-        player: player2,
-        isWinner: false,
-        message: "Time's up, you both lost, or tied idk...",
-      });
+      callErrorToast(false, "Game over. You ran out of time!");
     }
+  }, [isCountdownActive]);
 
-    if (audioRef.current && mistakes === 5 && isWinner === false) {
+  useEffect(() => {
+    if (
+      !isCountdownActive ||
+      isWinner === null ||
+      isToastRan ||
+      !audioRef.current
+    )
+      return;
+    setIsCountdownActive(false);
+    if (audioRef.current && isWinner === false) {
       audioRef.current.volume = 0.1;
       audioRef.current.src = booPath;
       audioRef.current.play();
-
       callErrorToast(isWinner, "You have made 5 mistakes, you lost! Try Again");
+
       socket?.emit("endGame", {
         player: player2,
         isWinner: !isWinner,
@@ -89,7 +89,7 @@ const useEndGameConditions = () => {
         message: "You lost. The opponent solved before you!",
       });
     }
-  }, [isWinner, isToastRan, isCountdownActive, mistakes]);
+  }, [isWinner, isToastRan, isCountdownActive]);
 
   return { audioRef, isToastRan };
 };

@@ -32,6 +32,7 @@ const SocketConnection = () => {
   }, [difficulty]);
 
   const handleSocketConnection = (p2Id: string) => {
+    console.log("Connect button clicked: ", p2Id);
     const newRoomId = [player1 + p2Id].sort().join("");
     setRoomId(newRoomId);
     socket?.emit("joinRoom", newRoomId);
