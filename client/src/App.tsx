@@ -9,12 +9,9 @@ import useGameStateStore from "./store/gameStateStore";
 import useSocketStore from "./store/socketStore";
 import useSudokuStore from "./store/sudokuStore";
 import useEndGameConditions from "./hooks/useEndGameConditions";
-import booPath from "./assets/boo.mp3";
-import hornPath from "./assets/horn.mp3";
 import { useSocket } from "./context/SocketProvider";
 import { generateSudokuBoard } from "./utils/generateSudoku";
 import { DifficultySet, TUnifiedGame } from "./types/types";
-import useToastStore from "./store/toastStore";
 import { countdownSet, emptySudoku } from "./store/constants";
 import {
   useInsertedCellsActions,

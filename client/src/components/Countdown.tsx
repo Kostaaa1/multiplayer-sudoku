@@ -14,10 +14,7 @@ import {
   useInvalidCellsActions,
   useSingleCellActions,
 } from "../store/cellStore";
-import booPath from "../assets/boo.mp3";
 import { cn, formatCountdown } from "../utils/utils";
-import useEndGameConditions from "../hooks/useEndGameConditions";
-import useToastStore from "../store/toastStore";
 
 type CountdownProps = {
   startNewGame: (diff: DifficultySet["data"], sudoku?: string[][]) => void;
