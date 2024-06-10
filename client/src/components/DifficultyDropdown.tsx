@@ -17,6 +17,7 @@ const DifficultyDropdown = () => {
 
   const handleDifficulty = (e: ChangeEvent<HTMLSelectElement>) => {
     const value = e.target.value as DifficultySet["data"];
+    localStorage.clear();
     setDifficulty(value);
   };
 
