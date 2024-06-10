@@ -1,7 +1,7 @@
 import { DifficultySet } from "../types/types";
 
 export const countdownSet: { [key in DifficultySet["data"]]: number } = {
-  easy: 5,
+  easy: 600,
   medium: 720,
   hard: 900,
 };
