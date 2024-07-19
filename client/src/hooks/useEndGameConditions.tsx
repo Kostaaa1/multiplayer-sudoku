@@ -12,18 +12,19 @@ import hornPath from "../assets/horn.mp3";
 
 const useEndGameConditions = () => {
   const audioRef = useRef<HTMLAudioElement>(null);
-
   const player2 = useSocketStore((state) => state.player2);
   const mistakes = useMistakesStore((state) => state.mistakes);
-
-  const isCountdownActive = useCountdownStore(
-    (state) => state.isCountdownActive,
-  );
+  const { isCountdownActive, time } = useCountdownStore((state) => ({
+    time: state.time,
+    isCountdownActive: state.isCountdownActive,
+  }));
   const { setIsCountdownActive } = useCountdownStore((state) => state.actions);
+
   const isToastRan = useToastStore((state) => state.isToastRan);
   const { callSuccessToast, callErrorToast } = useToastStore(
     (state) => state.actions,
   );
+
   const invalidCells = useInvalidCells();
   const sudoku = useSudokuStore((state) => state.sudoku);
   const isWinner = useGameStateStore((state) => state.isWinner);
@@ -31,12 +32,12 @@ const useEndGameConditions = () => {
   const socket = useSocket();
 
   //////////////////////////////////////
+  ///// Winning/Losing conditions: /////
+  //////////////////////////////////////
   const allCellsFilled = useMemo(() => {
     return sudoku?.flat().every((x) => x !== "");
   }, [sudoku]);
-  //////////////////////////////////////
 
-  ///// Winning/Losing conditions: /////
   useEffect(() => {
     if (allCellsFilled && mistakes < 5 && invalidCells.length === 0)
       setIsWinner(true);
@@ -47,13 +48,13 @@ const useEndGameConditions = () => {
   }, [mistakes]);
 
   useEffect(() => {
-    if (audioRef.current && !isCountdownActive) {
+    if (audioRef.current && time === 0) {
       audioRef.current.volume = 0.1;
       audioRef.current.src = booPath;
       audioRef.current.play();
       callErrorToast(false, "Game over. You ran out of time!");
     }
-  }, [isCountdownActive]);
+  }, [time]);
 
   useEffect(() => {
     if (
@@ -63,8 +64,10 @@ const useEndGameConditions = () => {
       !audioRef.current
     )
       return;
+
     setIsCountdownActive(false);
     if (audioRef.current && isWinner === false) {
+      console.log("called 1");
       audioRef.current.volume = 0.1;
       audioRef.current.src = booPath;
       audioRef.current.play();
